@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { NavLink } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
@@ -21,12 +22,22 @@ class Dashboard extends Component {
                         <span style={{ fontFamily: "monospace" }}>Restaurant</span> app 👏
                     </p>
                     </h4>
-                    <button
+                    <NavLink
                     style={{
                         width: "150px",
                         borderRadius: "3px",
-                        letterSpacing: "1.5px",
-                        marginTop: "1rem"
+                        textAlign: "center"
+                    }}
+                    className="btn btn-large waves-effect waves-light hoverable blue accent-3"
+                    to="/restaurant"
+                    >
+                    Restaurant
+                    </NavLink>
+                    <button
+                    style={{
+                        marginLeft: "2rem",
+                        width: "150px",
+                        borderRadius: "3px",
                     }}
                     onClick={this.onLogoutClick}
                     className="btn btn-large waves-effect waves-light hoverable blue accent-3"
