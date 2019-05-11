@@ -4,7 +4,7 @@ import {
 } from "../actions/types";
 
 const initialState = {
-    restaurant: {},
+    restaurant: [],
     loading: false
 };
 

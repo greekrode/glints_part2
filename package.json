@@ -23,13 +23,19 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "bootstrap": "^4.3.1",
     "concurrently": "^4.1.0",
+    "cors": "^2.8.5",
     "express": "^4.16.4",
     "is-empty": "^1.2.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.5.6",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
+    "react-bootstrap": "^1.0.0-beta.8",
+    "react-bootstrap-table-next": "^3.1.2",
+    "react-bootstrap-table2-paginator": "^2.0.6",
+    "react-toastify": "^5.1.0",
     "validator": "^10.11.0"
   },
   "devDependencies": {

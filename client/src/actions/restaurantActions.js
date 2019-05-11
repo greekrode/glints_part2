@@ -10,12 +10,12 @@ export const getRestaurants = () => dispatch => {
     axios
         .get("/api/restaurants")
         .then(res => {
-            console.log(res);
-            // dispatch(setRestaurantData(restaurantData))
+            dispatch(setRestaurantData(res.data))
         })
         .catch(err =>
             dispatch({
-                type: FETCH_RESTAURANTS_FAIL
+                type: FETCH_RESTAURANTS_FAIL,
+                payload: err.response.data
         })
     );
 };
@@ -25,4 +25,5 @@ export const setRestaurantData = restaurants => {
         type: FETCH_RESTAURANTS_SUCCESS,
         payload: restaurants
     }
-}
+};
+

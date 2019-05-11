@@ -33,6 +33,18 @@ class Dashboard extends Component {
                     >
                     Restaurant
                     </NavLink>
+                    <NavLink
+                    style={{
+                        marginLeft: "2rem",
+                        width: "150px",
+                        borderRadius: "3px",
+                        textAlign: "center"
+                    }}
+                    className="btn btn-large waves-effect waves-light hoverable blue accent-3"
+                    to="/collection"
+                    >
+                    Collection
+                    </NavLink>
                     <button
                     style={{
                         marginLeft: "2rem",
