@@ -3,12 +3,8 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const CollectionSchema = new Schema({
-  restaurantId: {
+  name: {
     type: String,
-    required: true
-  },
-  restaurantName: {
-      type: String,
       required: true
   },
   userId: {

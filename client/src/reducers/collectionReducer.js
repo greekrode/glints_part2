@@ -7,6 +7,8 @@ import {
 
 const initialState = {
     collection: [],
+    modalType: null,
+    modalProps: {}
 };
 
 export default function(state = initialState, action) {

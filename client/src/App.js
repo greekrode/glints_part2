@@ -8,6 +8,8 @@ import { setCurrentUser, logoutUser } from "./actions/authActions";
 import { Provider } from "react-redux";
 import store from "./store";
 
+import { ToastContainer } from 'react-toastify';
+
 import Navbar from './components/layout/Navbar';
 import Landing from './components/layout/Landing';
 import Register from './components/auth/Register';
@@ -16,7 +18,7 @@ import PrivateRoute from "./components/private-route/PrivateRoute";
 import Dashboard from "./components/dashboard/Dashboard";
 import Restaurant from "./components/restaurant/Restaurant";
 import Collection from "./components/collection/Collection";
-import { ToastContainer } from 'react-toastify';
+import Invite from "./components/invite/Invite";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -52,6 +54,7 @@ class App extends Component {
               <Route exact path="/login" component={Login} />
               <ToastContainer autoClose={2000}/>
               <Switch>
+                <PrivateRoute exact path="/invite/:id" component={Invite}/>
                 <PrivateRoute exact path="/dashboard" component={Dashboard} />
                 <PrivateRoute exact path="/restaurant" component={Restaurant} />
                 <PrivateRoute exact path="/collection" component={Collection} />

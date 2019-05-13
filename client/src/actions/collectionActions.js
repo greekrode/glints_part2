@@ -5,7 +5,9 @@ import {
     FETCH_COLLECTION_FAIL,
     FETCH_COLLECTION_SUCCESS,
     DELETE_COLLECTION_SUCCESS,
-    DELETE_COLLECTION_FAIL
+    DELETE_COLLECTION_FAIL,
+    SHOW_INVITE_MODAL,
+    HIDE_INVITE_MODAL
 } from "./types";
 import { toast } from 'react-toastify';
 
@@ -71,6 +73,7 @@ export const deleteCollection = collection => dispatch => {
             })
         })
 };
+
 
 export const setCollectionData = collections => {
     return {

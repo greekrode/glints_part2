@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { getCollections, deleteCollection } from "../../actions/collectionActions";
+import CollectionInviteForm from './CollectionInviteForm';
 
 class Collection extends Component {
     componentDidMount() {
@@ -17,8 +18,22 @@ class Collection extends Component {
 
         return (
             <div className="container">
+                <div className="float"
+                     style={{
+                         position: "fixed",
+                         bottom: "40px",
+                         right: "40px",
+                     }}
+                >
+                    <a className="btn-floating btn-large waves-effect waves-light red">
+                        <i className="material-icons">add</i>
+                    </a>
+                </div>
                 <Link to="/" className="btn-flat waves-effect">
                     <i className="material-icons left">keyboard_backspace</i> Back to home
+                </Link>
+                <Link to="/restaurant" className="btn-flat waves-effect right">
+                    <i className="material-icons right">fastfood</i> Go to restaurant
                 </Link>
                 <div className="row">
                     <div className="col s12">
