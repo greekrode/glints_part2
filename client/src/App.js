@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import './App.css';
 
 import jwt_decode from "jwt-decode";
 import setAuthToken from "./utils/setAuthToken";
@@ -18,6 +19,7 @@ import PrivateRoute from "./components/private-route/PrivateRoute";
 import Dashboard from "./components/dashboard/Dashboard";
 import Restaurant from "./components/restaurant/Restaurant";
 import Collection from "./components/collection/Collection";
+import CollectionData from "./components/collection/CollectionData";
 import Invite from "./components/invite/Invite";
 
 // Check for token to keep user logged in
@@ -58,6 +60,7 @@ class App extends Component {
                 <PrivateRoute exact path="/dashboard" component={Dashboard} />
                 <PrivateRoute exact path="/restaurant" component={Restaurant} />
                 <PrivateRoute exact path="/collection" component={Collection} />
+                <PrivateRoute exact path ="/collection/:id" component={CollectionData} />
               </Switch>
           </div>
         </Router>

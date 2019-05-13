@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { loginUser } from "../../actions/authActions";
 import classnames from "classnames";
+import { getIntendedUrl } from "../../utils/setIntendedUrl";
 
 class Login extends Component {
     constructor() {
@@ -17,7 +18,8 @@ class Login extends Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.auth.isAuthenticated) {
-            this.props.history.push("/dashboard"); // push user to dashboard when they login
+            const redirectUrl = getIntendedUrl() || '/dashboard';
+            this.props.history.push(redirectUrl); // push user to dashboard when they login
         }
 
         if (nextProps.errors) {

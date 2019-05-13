@@ -3,23 +3,40 @@ import { connect } from "react-redux";
 import { getRestaurants }  from "../../actions/restaurantActions";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import { addToCollection } from "../../actions/collectionActions";
+import { addToCollection, getCollections } from "../../actions/collectionActions";
+import { Modal, Button } from 'react-materialize';
+import Select from "react-select";
 
 class Restaurant extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            restaurantId: '',
+            collectionId: ''
+        }
+    }
     componentDidMount() {
         this.props.getRestaurants();
+        this.props.getCollections();
     }
 
-    onAddClick = id => {
-        const restaurantData = {
-            restaurant: id
+    handleChange = e => {
+        this.setState({collectionId: e._id})
+    };
+
+    onSubmit = e => {
+        e.preventDefault();
+        const collection = {
+            id: this.state.collectionId,
+            restaurant: this.state.restaurantId
         };
-    
-        this.props.addToCollection(restaurantData);
+
+        this.props.addToCollection(collection);
     };
 
     render() {
         const { restaurant } = this.props.restaurant;
+        const { collection } = this.props.collection;
     return (
         <div className="container">
         <Link to="/" className="btn-flat waves-effect">
@@ -47,12 +64,13 @@ class Restaurant extends Component {
                                     <td>{model.name}</td>
                                     <td>{model.open_hours}</td>
                                     <td>
-                                        <button 
-                                            className="waves-effect waves-light btn"
-                                            onClick={() => {this.onAddClick(model._id)}}
+                                        <Button
+                                            href="#modal1"
+                                            className="waves-effect waves-light btn modal-trigger"
+                                            onClick={ () => {this.setState({restaurantId: model._id})}}
                                         >
                                             <i className="material-icons">add</i>
-                                        </button>
+                                        </Button>
                                     </td>
                                 </tr>
                         })}
@@ -60,6 +78,30 @@ class Restaurant extends Component {
                     </table>
                 </div>
             </div>
+            <Modal header="Add to collection" id="modal1">
+                <form className="col s12" id="addCollectionForm" onSubmit={this.onSubmit}>
+                    <div className="row">
+                        <div className="col s8">
+                            <Select
+                                onChange={this.handleChange}
+                                className="basic-single"
+                                classNamePrefix="select"
+                                options={collection}
+                                getOptionLabel={(option) => option.name}
+                                getOptionValue={(option) => option._id}
+                            />
+                        </div>
+                        <div className="col s12" style={{paddingLeft: "11.250px"}}>
+                            <button
+                                className="btn btn-large waves-effect waves-light hoverable blue accent-3 right"
+                            >
+                                <i className="material-icons left">send</i>
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </Modal>
         </div>
         );
     }
@@ -70,10 +112,11 @@ Restaurant.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    restaurant: state.restaurant
+    restaurant: state.restaurant,
+    collection: state.collection
 });
 
 export default connect(
     mapStateToProps,
-    { getRestaurants, addToCollection }
+    { getRestaurants, addToCollection, getCollections }
 )(Restaurant);

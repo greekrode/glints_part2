@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const shortid = require('shortid');
-const mg = require('nodemailer-mailgun-transport');
 
 const Collection = require("../../models/Collection");
 const CollectionRestaurant = require("../../models/CollectionRestaurant");
 const CollectionUser = require("../../models/CollectionUser");
 const Invitation = require("../../models/Invitation");
 const Restaurant = require("../../models/Restaurant");
+const User = require("../../models/User");
 
 const auth = {
     auth: {
@@ -16,10 +16,8 @@ const auth = {
         domain: 'sandbox646c2c45d8ac4f379d5f144ecce25623.mailgun.org'
     }
 };
-const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 
 router.post("/", (req, res) => {
-    Collection.findOne({ name: req.body.name}).then(() => {
         const newCollection = new Collection({
             name: req.body.name,
             userId: req.user._id
@@ -29,16 +27,24 @@ router.post("/", (req, res) => {
             .save()
             .then(collection => res.json(collection))
             .catch(err => res.json(err));
-    })
 });
 
 router.get("/", (req, res) => {
-    Collection.find({ userId: req.user._id}).then(collections => {
+    Collection.find({userId : req.user._id}).then(collections => {
         res.json(collections)
     })
-    .catch(err => {
-        res.status(400).send(err.errors);
+    .catch(() => {
+        res.status(400).send({'message': 'No collection!'});
     })
+});
+
+router.get("/users", (req, res) => {
+    CollectionUser.find({userId : req.user._id}).then(collections => {
+        res.json(collections)
+    })
+        .catch(() => {
+            res.status(400).send({'message': 'No collection!'});
+        })
 });
 
 router.get("/:id", (req, res) => {
@@ -113,20 +119,27 @@ router.post("/invite/:id", (req, res) => {
         newInvitation
             .save()
             .then(() => {
-                let invitationLink = 'http://localhost:3000/invite/'+ req.user._id + '-' + code;
+                const invitationLink = 'http://localhost:3000/invite/'+ req.user._id + '-' + code;
 
-                nodemailerMailgun.sendMail({
+                const transport = nodemailer.createTransport({
+                    host: "smtp.mailtrap.io",
+                    port: 2525,
+                    auth: {
+                        user: "ffb361da0a2c35",
+                        pass: "843a8e156fcc1c"
+                    }
+                });
+
+                transport.sendMail({
                     from: req.user.email,
                     to: req.body.email,
                     subject: 'Join my collection of restaurant!',
                     html: '<p><b>' + req.user.name + '</b> has invited you to join his collection of restaurant! Your invitation link is: ' +
                         '<a href="' + invitationLink + '">CLICK HERE</a></p>'
-                })
-                .then(() => {
-                    res.json({'message' : 'Invitation sent!'})
-                })
-                .catch(() => {
-                    res.status(400).json({'message': 'Message can\'t be sent! Please try again!'});
+                }).then(() => {
+                    res.json({'message': 'Invitation sent!'})
+                }).catch(err => {
+                    res.status(400).json({'message': 'Can\'t send mail!'})
                 })
             })
             .catch(() => {
@@ -143,19 +156,40 @@ router.get("/invite/:id", (req, res) => {
    let inviteCode = req.params.id.trim().split("-")[1].trim();
 
    Invitation.findOne({ userId: sender, code: inviteCode}).then(invitation => {
-        const newCollectionUser = new CollectionUser({
-            collectionId: invitation.collectionId,
-            userId: req.user._id
-        });
+       CollectionUser.findOne({ userId: req.user._id, collectionId: invitation.collectionId }).then(collectionUser => {
+           User.findById(sender).then( user => {
+               Collection.findById(invitation.collectionId).then(collection => {
+                   if (collectionUser) {
+                       return res.status(400).json({'message': 'You have joined this collection!'});
+                   }
 
-       newCollectionUser
-           .save()
-           .then(() => {
-               res.json({'message' : 'Invited to collection!'})
+                   const newCollectionUser = new CollectionUser({
+                       collectionId: invitation.collectionId,
+                       collectionName: collection.name,
+                       userId: req.user._id,
+                       userName: user.name
+                   });
+
+                   newCollectionUser
+                       .save()
+                       .then(() => {
+                           res.json({'message' : 'Invited to collection!'})
+                       })
+                       .catch(() => {
+                           res.json({'message' : 'Can\'t join the collection!'})
+                       })
+               })
+               .catch(err => {
+                   res.status(400).json(err)
+               })
            })
-           .catch(() => {
-               res.json({'message' : 'Can\'t join the collection!'})
+           .catch(err => {
+               res.status(400).json(err)
            })
+       })
+       .catch(err => {
+           res.status(400).json(err)
+       })
    })
    .catch(() => {
        res.status(400).json({'message': 'Invalid invite link!'});

@@ -6,16 +6,18 @@ import {
     FETCH_COLLECTION_SUCCESS,
     DELETE_COLLECTION_SUCCESS,
     DELETE_COLLECTION_FAIL,
-    SHOW_INVITE_MODAL,
-    HIDE_INVITE_MODAL
+    FETCH_COLLECTION_DATA_SUCCESS,
+    FETCH_COLLECTION_DATA_FAIL,
+    FETCH_COLLABORATIVE_COLLECTION_SUCCESS,
+    FETCH_COLLABORATIVE_COLLECTION_FAIL
 } from "./types";
 import { toast } from 'react-toastify';
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
 
-export const addToCollection = restaurantData => dispatch => {
+export const addToCollection = collection => dispatch => {
     axios
-        .post("/api/collections", restaurantData)
+        .post("/api/collections/add/"+collection.id, collection)
         .then( res => {
             toast.success("Succesfully added to collection", {
                 position: toast.POSITION.TOP_RIGHT
@@ -26,7 +28,6 @@ export const addToCollection = restaurantData => dispatch => {
             })
         })
     .catch( err => {
-            // console.log(err.response.data.message);
             toast.error("This item has been added to the collection", {
                 position: toast.POSITION.TOP_RIGHT
             });
@@ -51,11 +52,28 @@ export const getCollections = () => dispatch => {
         })
 };
 
+export const getCollaborativeCollections = () => dispatch => {
+    axios
+        .get("/api/collections/users")
+        .then(res => {
+            dispatch({
+                type: FETCH_COLLABORATIVE_COLLECTION_SUCCESS,
+                payload: res.data
+            })
+        })
+        .catch(err => {
+            dispatch({
+                type: FETCH_COLLABORATIVE_COLLECTION_FAIL,
+                payload: err.response.data.message
+            })
+        })
+};
+
 export const deleteCollection = collection => dispatch => {
     axios
         .delete("/api/collections/"+collection)
         .then(res => {
-            toast.success("Succesfully delete collection", {
+            toast.success("Successfully delete collection", {
                 position: toast.POSITION.TOP_RIGHT
             });
             dispatch({
@@ -74,6 +92,60 @@ export const deleteCollection = collection => dispatch => {
         })
 };
 
+export const addCollection = collection => dispatch => {
+    axios
+        .post("/api/collections", collection)
+        .then( res => {
+            toast.success("Successfully add new collection", {
+                position: toast.POSITION.TOP_RIGHT
+            });
+            dispatch({
+                type: ADD_COLLECTION_SUCCESS,
+                payload: res.data
+            })
+        })
+        .catch(err => {
+            toast.error("Fail to add collection", {
+                position: toast.POSITION.TOP_RIGHT
+            });
+            dispatch({
+                type: ADD_COLLECTION_FAIL,
+                payload: err
+            })
+        })
+};
+
+export const getCollectionData = id => dispatch => {
+      axios
+          .get("/api/collections/" + id)
+          .then(res => {
+              dispatch({
+                  type: FETCH_COLLECTION_DATA_SUCCESS,
+                  payload: res.data
+              })
+          })
+          .catch(err => {
+              dispatch({
+                  type: FETCH_COLLECTION_DATA_FAIL,
+                  payload: err.response.data.message
+              })
+          })
+};
+
+export const sendInvitation = invite => () => {
+    axios
+        .post("/api/collections/invite/" + invite.id, invite)
+        .then( () => {
+            toast.success("Invitation sent!", {
+                position: toast.POSITION.TOP_RIGHT
+            });
+        })
+        .catch(() => {
+            toast.error("Fail to send invitation. Please try again!", {
+                position: toast.POSITION.TOP_RIGHT
+            });
+        })
+}
 
 export const setCollectionData = collections => {
     return {
