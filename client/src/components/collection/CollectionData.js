@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { getCollectionData } from "../../actions/collectionActions";
-import {Button, Modal} from "react-materialize";
 
 class CollectionData extends Component{
     componentDidMount() {
@@ -54,28 +53,6 @@ class CollectionData extends Component{
                         </table>
                     </div>
                 </div>
-                <Modal header="Add new collection" id="modal1">
-                    <form className="col s12" id="collectionInviteForm" onSubmit={this.onSubmit}>
-                        <div className="row">
-                            <div className="input-field col s6">
-                                <i className="material-icons prefix">label</i>
-                                <input
-                                    id="icon_prefix"
-                                    type="text"
-                                    className="validate" ref="collectionName" required/>
-                                <label htmlFor="icon_prefix">Collection name</label>
-                            </div>
-                            <div className="col s12" style={{paddingLeft: "11.250px"}}>
-                                <button
-                                    className="btn btn-large waves-effect waves-light hoverable blue accent-3 right"
-                                >
-                                    <i className="material-icons left">send</i>
-                                    SUBMIT
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </Modal>
             </div>
         )
     }

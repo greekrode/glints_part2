@@ -35,7 +35,7 @@ app.use(passport.initialize());
 app.use(cors({
   credentials: true,
   origin: true
-}))
+}));
 
 // Passport config
 require("./config/passport")(passport);

@@ -4,11 +4,14 @@ import { Link } from "react-router-dom";
 import { getCollections, getCollaborativeCollections, deleteCollection, addCollection, sendInvitation } from "../../actions/collectionActions";
 import { Modal, Button, TextInput, Icon, Row, Col } from 'react-materialize';
 
+
 class Collection extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            collectionId: ''
+            collectionId: '',
+            collectionName: '',
+            emailAddress: ''
         }
     }
 
@@ -21,10 +24,18 @@ class Collection extends Component {
         this.props.deleteCollection(id);
     };
 
+    handleChangeCollection = e => {
+        this.setState({collectionName: e.target.value})
+    };
+
+    handleChangeEmail = e => {
+        this.setState({emailAddress: e.target.value})
+    };
+
     onAddSubmit = e => {
         e.preventDefault();
         const collection = {
-            name: this.refs.collectionName.value
+            name: this.state.collectionName
         };
 
         this.props.addCollection(collection);
@@ -35,7 +46,7 @@ class Collection extends Component {
         e.preventDefault();
 
         const invite = {
-            email: this.refs.emailAddress.value,
+            email: this.state.emailAddress,
             id: this.state.collectionId
         };
 
@@ -135,7 +146,8 @@ class Collection extends Component {
                             id="name"
                             type="text"
                             s="12"
-                            className="validate" ref="collectionName" required/>
+                            className="validate"
+                            onChange={this.handleChangeCollection}/>
                     </Row>
                     <Row>
                         <Col s={12}>
@@ -156,7 +168,7 @@ class Collection extends Component {
                                 email
                                 validate
                                 s="12"
-                                ref="emailAddress"/>
+                                onChange={this.handleChangeEmail}/>
                         </Row>
                         <Row>
                             <Col s={12}>

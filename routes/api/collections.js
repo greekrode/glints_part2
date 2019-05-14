@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const shortid = require('shortid');
+const async = require("async");
 
 const Collection = require("../../models/Collection");
 const CollectionRestaurant = require("../../models/CollectionRestaurant");
@@ -10,12 +11,8 @@ const Invitation = require("../../models/Invitation");
 const Restaurant = require("../../models/Restaurant");
 const User = require("../../models/User");
 
-const auth = {
-    auth: {
-        api_key: 'ff5fc9a477ec5fdfb61d9385965023d9-9525e19d-9aa891e2',
-        domain: 'sandbox646c2c45d8ac4f379d5f144ecce25623.mailgun.org'
-    }
-};
+const mailtrapUser = require("../../config/keys").mailtrapUser;
+const mailtrapPass = require("../../config/keys").mailtrapPass;
 
 router.post("/", (req, res) => {
         const newCollection = new Collection({
@@ -125,8 +122,8 @@ router.post("/invite/:id", (req, res) => {
                     host: "smtp.mailtrap.io",
                     port: 2525,
                     auth: {
-                        user: "ffb361da0a2c35",
-                        pass: "843a8e156fcc1c"
+                        user: mailtrapUser,
+                        pass: mailtrapPass
                     }
                 });
 
@@ -136,15 +133,12 @@ router.post("/invite/:id", (req, res) => {
                     subject: 'Join my collection of restaurant!',
                     html: '<p><b>' + req.user.name + '</b> has invited you to join his collection of restaurant! Your invitation link is: ' +
                         '<a href="' + invitationLink + '">CLICK HERE</a></p>'
-                }).then(() => {
-                    res.json({'message': 'Invitation sent!'})
-                }).catch(err => {
-                    res.status(400).json({'message': 'Can\'t send mail!'})
-                })
+                });
+                res.json({'message': 'Invitation sent!'})
             })
             .catch(() => {
-                res.json(400).json({'message': 'Fail to send invitation!'})
-            });
+                res.status(400).json({'message': 'Fail to send mail!'});
+            })
     })
     .catch(() => {
         res.status(400).json({'message': 'Something is wrong. Please try again!'});
