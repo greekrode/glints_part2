@@ -12,8 +12,6 @@ import {
 const initialState = {
     collection: [],
     collaborativeCollection: [],
-    modalType: null,
-    modalProps: {}
 };
 
 export default function(state = initialState, action) {

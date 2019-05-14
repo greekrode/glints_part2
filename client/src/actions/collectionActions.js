@@ -145,7 +145,7 @@ export const sendInvitation = invite => () => {
                 position: toast.POSITION.TOP_RIGHT
             });
         })
-}
+};
 
 export const setCollectionData = collections => {
     return {

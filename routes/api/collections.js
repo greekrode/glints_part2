@@ -58,7 +58,7 @@ router.get("/:id", (req, res) => {
 
 router.post("/add/:id", (req, res) => {
     Collection.findById(req.params.id).then(() => {
-        CollectionRestaurant.findOne({ restaurantId: req.body.restaurant }).then( collection => {
+        CollectionRestaurant.findOne({ collectionId: req.params.id, restaurantId: req.body.restaurant }).then( collection => {
             if (collection) {
                 return res.status(400).json({ message: "Selected restaurant has been added." })
             }

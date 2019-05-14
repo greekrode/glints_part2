@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { getCollections, getCollaborativeCollections, deleteCollection, addCollection, sendInvitation } from "../../actions/collectionActions";
-import { Modal, Button } from 'react-materialize';
+import { Modal, Button, TextInput, Icon, Row, Col } from 'react-materialize';
 
 class Collection extends Component {
     constructor(props) {
@@ -15,7 +15,6 @@ class Collection extends Component {
     componentDidMount() {
         this.props.getCollections();
         this.props.getCollaborativeCollections();
-        console.log(this.props.collection.collaborativeCollection);
     }
 
     onDeleteClick = id => {
@@ -45,7 +44,8 @@ class Collection extends Component {
 
     render() {
         const { collection } = this.props.collection;
-        const { collaborativeCollection } = this.props.collection.collaborativeCollection;
+        const { collaborativeCollection } = this.props.collection;
+
         return (
             <div className="container">
                 <Link to="/" className="btn-flat waves-effect">
@@ -67,7 +67,7 @@ class Collection extends Component {
                 </div>
                 <div className="row">
                     <div className="col s12">
-                        <h3 className="center-align">Collection</h3>
+                        <h3 className="center-align">My Collection</h3>
                         <table className="striped responsive-table">
                             <thead>
                                 <tr>
@@ -112,32 +112,15 @@ class Collection extends Component {
                             <tr>
                                 <th>#</th>
                                 <th>Collection name</th>
-                                <th></th>
+                                <th>Owner</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {collection.length === 0 ? (<tr><td colSpan="4">No List</td></tr>) : collaborativeCollection.map( (model, index) => {
+                            {collaborativeCollection.length === 0 ? (<tr><td colSpan="4">No List</td></tr>) : collaborativeCollection.map( (model, index) => {
                                 return <tr>
                                     <td key={index}>{index+1}</td>
-                                    <td><Link to={`/collection/${model._id}`}>{model.name}</Link></td>
-                                    <td>
-                                        {/*<button*/}
-                                            {/*href="#modal2"*/}
-                                            {/*className="waves-effect waves-light blue btn modal-trigger"*/}
-                                            {/*style={{*/}
-                                                {/*marginRight: "1.5rem"*/}
-                                            {/*}}*/}
-                                            {/*onClick={ () => {this.setState({collectionId: model._id})}}*/}
-                                        {/*>*/}
-                                            {/*<i className="material-icons">people</i>*/}
-                                        {/*</button>*/}
-                                        {/*<button*/}
-                                            {/*className="waves-effect waves-light red btn"*/}
-                                            {/*onClick={() => {this.onDeleteClick(model._id)}}*/}
-                                        {/*>*/}
-                                            {/*<i className="material-icons">delete</i>*/}
-                                        {/*</button>*/}
-                                    </td>
+                                    <td><Link to={`/collection/${model.collectionId}`}>{model.collectionName}</Link></td>
+                                    <td>{model.userName}</td>
                                 </tr>
                             })}
                             </tbody>
@@ -146,45 +129,43 @@ class Collection extends Component {
                 </div>
                 <Modal header="Add new collection" id="modal1">
                 <form className="col s12" id="collectionInviteForm" onSubmit={this.onAddSubmit}>
-                    <div className="row">
-                        <div className="input-field col s8">
-                            <input
-                                id="name"
-                                type="text"
-                                className="validate" ref="collectionName" required/>
-                            <label htmlFor="name">Collection name</label>
-                        </div>
-                        <div className="col s12" style={{paddingLeft: "11.250px"}}>
-                            <button
-                                className="btn btn-large waves-effect waves-light hoverable blue accent-3 right"
-                            >
-                                <i className="material-icons left">send</i>
+                    <Row>
+                        <TextInput
+                            label="Collection name"
+                            id="name"
+                            type="text"
+                            s="12"
+                            className="validate" ref="collectionName" required/>
+                    </Row>
+                    <Row>
+                        <Col s={12}>
+                            <Button className="right" waves="light" large>
+                                <Icon right>send</Icon>
                                 Submit
-                            </button>
-                        </div>
-                    </div>
+                            </Button>
+                        </Col>
+                    </Row>
                 </form>
             </Modal>
 
                 <Modal header="Invite friend" id="modal2">
                     <form className="col s12" id="collectionInviteForm" onSubmit={this.onInviteSubmit}>
-                        <div className="row">
-                            <div className="input-field col s8">
-                                <input
-                                    id="email"
-                                    type="email"
-                                    className="validate" ref="emailAddress" required/>
-                                <label htmlFor="email">Email address</label>
-                            </div>
-                            <div className="col s12" style={{paddingLeft: "11.250px"}}>
-                                <button
-                                    className="btn btn-large waves-effect waves-light hoverable blue accent-3 right"
-                                >
-                                    <i className="material-icons left">send</i>
+                        <Row>
+                            <TextInput
+                                label="Email address"
+                                email
+                                validate
+                                s="12"
+                                ref="emailAddress"/>
+                        </Row>
+                        <Row>
+                            <Col s={12}>
+                                <Button className="right" waves="light" large>
+                                    <Icon right>mail</Icon>
                                     Send
-                                </button>
-                            </div>
-                        </div>
+                                </Button>
+                            </Col>
+                        </Row>
                     </form>
                 </Modal>
             </div>

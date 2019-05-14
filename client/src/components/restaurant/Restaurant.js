@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { getRestaurants }  from "../../actions/restaurantActions";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import { addToCollection, getCollections } from "../../actions/collectionActions";
-import { Modal, Button } from 'react-materialize';
+import { addToCollection, getCollections, getCollaborativeCollections, addCollection } from "../../actions/collectionActions";
+import {Modal, Button, Icon, Row, Col, TextInput} from 'react-materialize';
 import Select from "react-select";
 
 class Restaurant extends Component {
@@ -12,16 +12,37 @@ class Restaurant extends Component {
         super(props);
         this.state = {
             restaurantId: '',
-            collectionId: ''
+            collectionId: '',
+            collectionName: '',
+            addNewCollection: false
         }
     }
     componentDidMount() {
         this.props.getRestaurants();
         this.props.getCollections();
+        this.props.getCollaborativeCollections();
     }
 
     handleChange = e => {
         this.setState({collectionId: e._id})
+    };
+
+    handleChangeCollaborative = e => {
+        this.setState({collectionId: e.collectionId})
+    };
+
+    handleChangeNewCollection = e => {
+        this.setState({collectionName: e.target.value})
+    };
+
+    onAddNewCollectionSubmit = e => {
+        e.preventDefault();
+        const collection = {
+            name: this.state.collectionName
+        };
+
+        this.props.addCollection(collection);
+        this.props.getCollections();
     };
 
     onSubmit = e => {
@@ -37,6 +58,7 @@ class Restaurant extends Component {
     render() {
         const { restaurant } = this.props.restaurant;
         const { collection } = this.props.collection;
+        const { collaborativeCollection } = this.props.collection;
     return (
         <div className="container">
         <Link to="/" className="btn-flat waves-effect">
@@ -79,9 +101,11 @@ class Restaurant extends Component {
                 </div>
             </div>
             <Modal header="Add to collection" id="modal1">
+                <div style={{ height: "1px", width: "100%", backgroundColor: "#DADADA", marginBottom: "20px" }}></div>
                 <form className="col s12" id="addCollectionForm" onSubmit={this.onSubmit}>
-                    <div className="row">
-                        <div className="col s8">
+                    <h5>My collection</h5>
+                    <Row>
+                        <Col s={10}>
                             <Select
                                 onChange={this.handleChange}
                                 className="basic-single"
@@ -90,17 +114,85 @@ class Restaurant extends Component {
                                 getOptionLabel={(option) => option.name}
                                 getOptionValue={(option) => option._id}
                             />
-                        </div>
-                        <div className="col s12" style={{paddingLeft: "11.250px"}}>
-                            <button
-                                className="btn btn-large waves-effect waves-light hoverable blue accent-3 right"
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col s={12}>
+                            <Button
+                                className="right"
+                                waves="light"
+                                large
                             >
                                 <i className="material-icons left">send</i>
                                 Add
-                            </button>
-                        </div>
-                    </div>
+                            </Button>
+                        </Col>
+                    </Row>
                 </form>
+                <form className="col s12" id="addCollectionForm" onSubmit={this.onSubmit}>
+                    <h5>Collaborative collection</h5>
+                    <Row>
+                        <Col s={10}>
+                            <Select
+                                onChange={this.handleChangeCollaborative}
+                                className="basic-single"
+                                classNamePrefix="select"
+                                options={collaborativeCollection}
+                                getOptionLabel={(option) => option.collectionName}
+                                getOptionValue={(option) => option.collectionId}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col s={12}>
+                            <Button
+                                className="right"
+                                waves="light"
+                                large
+                            >
+                                <i className="material-icons left">send</i>
+                                Add
+                            </Button>
+                        </Col>
+                    </Row>
+                </form>
+                <div className="row">
+                    <div style={{ height: "1px", width: "100%", backgroundColor: "#DADADA", marginBottom: "20px" }}></div>
+                    <Button flat waves="light" onClick={() => this.setState({addNewCollection: true})}>
+                        <Icon left>
+                            add
+                        </Icon>
+                        Add new collection
+                    </Button>
+                </div>
+                {this.state.addNewCollection ?
+                <form className="col s12" id="addCollectionForm" onSubmit={this.onAddNewCollectionSubmit}>
+                    <Row>
+                        <Col s={10}>
+                            <TextInput
+                                label="Collection name"
+                                id="name"
+                                type="text"
+                                s="12"
+                                className="validate"
+                                onChange={this.handleChangeNewCollection}
+                                />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col s={12}>
+                            <Button
+                                className="right blue accent-2"
+                                waves="light"
+                                large
+                            >
+                                <Icon left>add</Icon>
+                                Add
+                            </Button>
+                        </Col>
+                    </Row>
+                </form>
+                : ''}
             </Modal>
         </div>
         );
@@ -113,10 +205,11 @@ Restaurant.propTypes = {
 
 const mapStateToProps = state => ({
     restaurant: state.restaurant,
-    collection: state.collection
+    collection: state.collection,
+    collaborativeCollection: state.collaborativeCollection
 });
 
 export default connect(
     mapStateToProps,
-    { getRestaurants, addToCollection, getCollections }
+    { getRestaurants, addToCollection, getCollections, getCollaborativeCollections, addCollection }
 )(Restaurant);
