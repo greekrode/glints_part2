@@ -1,21 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { getRestaurants }  from "../../actions/restaurantActions";
+import { getRestaurants, filterRestaurants }  from "../../actions/restaurantActions";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { addToCollection, getCollections, getCollaborativeCollections, addCollection } from "../../actions/collectionActions";
 import { Modal, Button, Icon, Row, Col, TextInput, TimePicker, Select as Select2 } from 'react-materialize';
 import Select from "react-select";
-
-const days = [
-    { value: 'mon', label: "Monday"},
-    { value: 'tue', label: "Tuesday"},
-    { value: 'wed', label: "Wednesday"},
-    { value: 'thu', label: "Thursday"},
-    { value: 'fri', label: "Friday"},
-    { value: 'sat', label: "Saturday"},
-    { value: 'sun', label: "Sunday"},
-];
 
 class Restaurant extends Component {
     constructor(props) {
@@ -24,8 +14,8 @@ class Restaurant extends Component {
             restaurantId: '',
             collectionId: '',
             collectionName: '',
-            time: '',
             restaurantName: '',
+            time: '',
             day: '',
             addNewCollection: false,
             isLoading: false
@@ -60,6 +50,18 @@ class Restaurant extends Component {
 
     handleSelectTime = e => {
         this.setState({time: e.target.value});
+    };
+
+    onFilterSubmit = e => {
+        e.preventDefault();
+
+          const query = {
+              name: this.state.restaurantName,
+              day: this.state.day,
+              time: this.state.time
+          };
+
+          this.props.filterRestaurants(query, () => this.setState({isLoading: false}));
     };
 
     onAddNewCollectionSubmit = e => {
@@ -111,36 +113,36 @@ class Restaurant extends Component {
                 <div className="col s12">
                 <h3 className="center-align">Restaurant Data</h3>
                     <Row>
-                        <TextInput label="Restaurant Name" s={4} onChange={this.handleChangeFilter} icon="chat"/>
-                        <Select2 onChange={this.handleChangeDay} s={3} icon="calendar_today">
-                            <option value="" disabled>
-                                Choose your option
-                            </option>
-                            <option value="mon">Monday</option>
-                            <option value="tue">Tuesday</option>
-                            <option value="wed">Wednesday</option>
-                            <option value="thu">Thursday</option>
-                            <option value="fri">Friday</option>
-                            <option value="sat">Saturday</option>
-                            <option value="sun">Sunday</option>
-                        </Select2>
-                        <TimePicker label="Time"
-                                    s={3}
-                                    icon="access_time"
-                                    options={{
-                                        twelveHour: false,
-                                        showClearBtn: true
-                                    }}
-                                    onSelect={this.handleSelectTime}
-                        />
-                        <Button
-                            className="right blue accent-2"
-                            waves="light"
-                            large
-                        >
-                            <Icon left>search</Icon>
-                            Filter
-                        </Button>
+                        <form onSubmit={this.onFilterSubmit}>
+                            <TextInput label="Restaurant Name" s={4} onChange={this.handleChangeFilter} icon="chat"/>
+                            <Select2 onChange={this.handleChangeDay} s={3} icon="calendar_today">
+                                <option value="">Choose your option</option>
+                                <option value="mon">Monday</option>
+                                <option value="tue">Tuesday</option>
+                                <option value="wed">Wednesday</option>
+                                <option value="thu">Thursday</option>
+                                <option value="fri">Friday</option>
+                                <option value="sat">Saturday</option>
+                                <option value="sun">Sunday</option>
+                            </Select2>
+                            <TimePicker label="Time"
+                                        s={3}
+                                        icon="access_time"
+                                        options={{
+                                            showClearBtn: true
+                                        }}
+                                        onSelect={this.handleSelectTime}
+                            />
+                            <Button
+                                type="submit"
+                                className="right blue accent-2"
+                                waves="light"
+                                large
+                            >
+                                <Icon left>search</Icon>
+                                Filter
+                            </Button>
+                        </form>
                     </Row>
                     <table className="striped responsive-table">
                         <thead>
@@ -283,5 +285,5 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { getRestaurants, addToCollection, getCollections, getCollaborativeCollections, addCollection }
+    { getRestaurants, addToCollection, getCollections, getCollaborativeCollections, addCollection, filterRestaurants }
 )(Restaurant);

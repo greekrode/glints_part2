@@ -3,6 +3,7 @@ const router = express.Router();
 const arrayUnion = require('array-union');
 const { Types } = require("mongoose");
 const { ObjectId } = Types;
+const moment = require("moment");
 
 // Load User model
 const Restaurant = require("../../models/Restaurant");
@@ -13,25 +14,28 @@ router.get("/", async (req, res) => {
     let openHours = [];
     let objectIds = [];
     const { name, day, time } = req.query;
+    const convertedTime = moment(time, "hh:mm A").format("H:mm");
+    const splitedConvertedTime = convertedTime.split(":");
+    const timeInMinutes = parseInt((splitedConvertedTime[0] * 60)) + parseInt(splitedConvertedTime[1]);
 
     if (day) {
         const restaurantHour = await RestaurantHour.find({ day: day.toLowerCase() }, { restaurantId: 1 }).lean().exec();
         openDays = restaurantHour.map((r) => r.restaurantId);
     }
 
-    if (time) {
+    if (timeInMinutes > 0) {
         const restaurantHour = await RestaurantHour.find({
-            start: { "$gte": time },
-            end: { "$lte": time}
+            "start" : { "$gte": timeInMinutes },
+            "end" : { "$lte": timeInMinutes}
             },
             { restaurantId: 1 }).lean().exec();
         openHours = restaurantHour.map((r) => r.restaurantId);
     }
 
-    if (openDays.length > 1 && openHours.length > 1) {
+    if (day && timeInMinutes) {
         objectIds = arrayUnion(openDays, openHours);
     } else {
-        if (openDays.length > 1) {
+        if (day) {
             objectIds = openDays
         } else {
             objectIds = openHours
