@@ -22,7 +22,14 @@ router.post("/", (req, res) => {
 
         newCollection
             .save()
-            .then(collection => res.json(collection))
+            .then(() => {
+                Collection.find({userId : req.user._id}).then(collections => {
+                    res.json(collections)
+                })
+                .catch(() => {
+                    res.status(400).send({'message': 'No collection!'});
+                })
+            })
             .catch(err => res.json(err));
 });
 
@@ -74,7 +81,11 @@ router.post("/add/:id", (req, res) => {
 
                 newCollectionRestaurant
                     .save()
-                    .then(collection => res.json(collection))
+                    .then(collection => {
+                        const socket = req.app.locals.socket.of('/');
+                        socket.emit('colectionUpdate', collection);
+                        res.json(collection)
+                    })
                     .catch(() => res.status(400).json({'message': 'Fail to save restaurant to collection!'}))
             })
         })
@@ -86,8 +97,17 @@ router.post("/add/:id", (req, res) => {
 
 router.delete("/:id", (req, res) => {
     Collection.findByIdAndRemove(req.params.id).then( () => {
-            res.json({'message' : 'Collection deleted!'});
+        res.json({'message' : 'Collection deleted!'});
+    })
+        .catch(err => {
+            res.status(400).json(err.errors);
         })
+});
+
+router.delete("/data/:id", (req, res) => {
+    CollectionRestaurant.findByIdAndRemove(req.params.id).then( () => {
+        res.json({'message' : 'Collection data deleted!'});
+    })
         .catch(err => {
             res.status(400).json(err.errors);
         })
@@ -101,6 +121,7 @@ router.delete("/restaurant/:id", (req, res) => {
         res.status(400).json({'message': 'Restaurant can\'t be removed!'});
     })
 });
+
 
 router.post("/invite/:id", (req, res) => {
     Collection.findById(req.params.id).then(() => {

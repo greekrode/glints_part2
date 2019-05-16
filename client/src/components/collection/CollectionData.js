@@ -1,12 +1,26 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { getCollectionData } from "../../actions/collectionActions";
+import { getCollectionData, deleteFromCollection } from "../../actions/collectionActions";
+import io from "socket.io-client";
 
 class CollectionData extends Component{
     componentDidMount() {
         this.props.getCollectionData(this.props.match.params.id);
+        const socket = io.connect('http://localhost:5000', {
+            path: '/'
+        });
+        socket.on('collectionUpdate', (data) => {
+            console.log(data);
+            if (data._id === this.props.match.params.id) {
+                this.props.getCollectionData(this.props.match.params.id);
+            }
+        })
     }
+
+    onDeleteClick = id => {
+        this.props.deleteFromCollection(id);
+    };
 
     render() {
         const { collection } = this.props.collection;
@@ -64,5 +78,5 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { getCollectionData }
+    { getCollectionData, deleteFromCollection }
 )(CollectionData);

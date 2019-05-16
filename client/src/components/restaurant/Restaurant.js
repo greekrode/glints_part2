@@ -4,7 +4,7 @@ import { getRestaurants }  from "../../actions/restaurantActions";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { addToCollection, getCollections, getCollaborativeCollections, addCollection } from "../../actions/collectionActions";
-import {Modal, Button, Icon, Row, Col, TextInput} from 'react-materialize';
+import { Modal, Button, Icon, Row, Col, TextInput, TimePicker } from 'react-materialize';
 import Select from "react-select";
 
 class Restaurant extends Component {
@@ -14,11 +14,13 @@ class Restaurant extends Component {
             restaurantId: '',
             collectionId: '',
             collectionName: '',
-            addNewCollection: false
+            addNewCollection: false,
+            isLoading: false
         }
     }
     componentDidMount() {
-        this.props.getRestaurants();
+        this.setState({isLoading: true});
+        this.props.getRestaurants(() => this.setState({isLoading: false}));
         this.props.getCollections();
         this.props.getCollaborativeCollections();
     }
@@ -35,6 +37,10 @@ class Restaurant extends Component {
         this.setState({collectionName: e.target.value})
     };
 
+    handleSelectTime = e => {
+        console.log(e.target.value);
+    };
+
     onAddNewCollectionSubmit = e => {
         e.preventDefault();
         const collection = {
@@ -42,7 +48,6 @@ class Restaurant extends Component {
         };
 
         this.props.addCollection(collection);
-        this.props.getCollections();
     };
 
     onSubmit = e => {
@@ -59,6 +64,20 @@ class Restaurant extends Component {
         const { restaurant } = this.props.restaurant;
         const { collection } = this.props.collection;
         const { collaborativeCollection } = this.props.collection;
+        if (this.state.isLoading) {
+            return (
+                <div style={{ height: "75vh"}} className="container valign-wrapper">
+                    <div className="row">
+                        <div className="col s12">
+                            <div className="lds-ripple">
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
     return (
         <div className="container">
         <Link to="/" className="btn-flat waves-effect">
@@ -70,6 +89,25 @@ class Restaurant extends Component {
             <div className="row">
                 <div className="col s12">
                 <h3 className="center-align">Restaurant Data</h3>
+                    <Row>
+                        <TextInput label="Restaurant Name" s={5} />
+                        <TimePicker label="Time"
+                                    s={5}
+                                    options={{
+                                        twelveHour: false,
+                                        showClearBtn: true
+                                    }}
+                                    onSelect={this.handleSelectTime}
+                        />
+                        <Button
+                            className="right blue accent-2"
+                            waves="light"
+                            large
+                        >
+                            <Icon left>add</Icon>
+                            Add
+                        </Button>
+                    </Row>
                     <table className="striped responsive-table">
                         <thead>
                             <tr>

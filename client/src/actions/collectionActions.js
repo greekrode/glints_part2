@@ -9,7 +9,9 @@ import {
     FETCH_COLLECTION_DATA_SUCCESS,
     FETCH_COLLECTION_DATA_FAIL,
     FETCH_COLLABORATIVE_COLLECTION_SUCCESS,
-    FETCH_COLLABORATIVE_COLLECTION_FAIL
+    FETCH_COLLABORATIVE_COLLECTION_FAIL,
+    ADD_TO_COLLECTION_FAIL,
+    ADD_TO_COLLECTION_SUCCESS, DELETE_FROM_COLLECTION_SUCCESS, DELETE_FROM_COLLECTION_FAIL
 } from "./types";
 import { toast } from 'react-toastify';
 
@@ -23,7 +25,7 @@ export const addToCollection = collection => dispatch => {
                 position: toast.POSITION.TOP_RIGHT
             });
             dispatch ({
-                type: ADD_COLLECTION_SUCCESS,
+                type: ADD_TO_COLLECTION_SUCCESS,
                 payload: res.data
             })
         })
@@ -32,8 +34,8 @@ export const addToCollection = collection => dispatch => {
                 position: toast.POSITION.TOP_RIGHT
             });
             dispatch ({
-                type: ADD_COLLECTION_FAIL,
-                payload: err.response.data.message
+                type: ADD_TO_COLLECTION_FAIL,
+                payload: err
             })
         })
 };
@@ -47,7 +49,7 @@ export const getCollections = () => dispatch => {
         .catch(err => {
             dispatch({
                 type: FETCH_COLLECTION_FAIL,
-                payload: err.response.data.message
+                payload: err
             })
         })
 };
@@ -64,7 +66,7 @@ export const getCollaborativeCollections = () => dispatch => {
         .catch(err => {
             dispatch({
                 type: FETCH_COLLABORATIVE_COLLECTION_FAIL,
-                payload: err.response.data.message
+                payload: err
             })
         })
 };
@@ -87,6 +89,29 @@ export const deleteCollection = collection => dispatch => {
             });
             dispatch({
                 type: DELETE_COLLECTION_FAIL,
+                payload: err
+            })
+        })
+};
+
+export const deleteFromCollection = collection => dispatch => {
+    axios
+        .delete("/api/collections/data/"+collection)
+        .then(() => {
+            toast.success("Successfully delete collection data", {
+                position: toast.POSITION.TOP_RIGHT
+            });
+            dispatch({
+                type: DELETE_FROM_COLLECTION_SUCCESS,
+                payload: collection
+            })
+        })
+        .catch(err => {
+            toast.error("Fail to delete collection", {
+                position: toast.POSITION.TOP_RIGHT
+            });
+            dispatch({
+                type: DELETE_FROM_COLLECTION_FAIL,
                 payload: err
             })
         })
@@ -127,7 +152,7 @@ export const getCollectionData = id => dispatch => {
           .catch(err => {
               dispatch({
                   type: FETCH_COLLECTION_DATA_FAIL,
-                  payload: err.response.data.message
+                  payload: err
               })
           })
 };

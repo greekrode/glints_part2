@@ -6,10 +6,11 @@ import {
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
 
-export const getRestaurants = () => dispatch => {
+export const getRestaurants = (onSuccess) => dispatch => {
     axios
         .get("/api/restaurants")
         .then(res => {
+            onSuccess();
             dispatch(setRestaurantData(res.data))
         })
         .catch(err =>
