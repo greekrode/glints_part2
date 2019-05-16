@@ -23,40 +23,110 @@ router.get("/", async (req, res) => {
         openDays = restaurantHour.map((r) => r.restaurantId);
     }
 
-    if (timeInMinutes > 0) {
-        const restaurantHour = await RestaurantHour.find({
-            "start" : { "$gte": timeInMinutes },
-            "end" : { "$lte": timeInMinutes}
-            },
-            { restaurantId: 1 }).lean().exec();
-        openHours = restaurantHour.map((r) => r.restaurantId);
-    }
 
-    if (day && timeInMinutes) {
-        objectIds = arrayUnion(openDays, openHours);
-    } else {
-        if (day) {
-            objectIds = openDays
-        } else {
-            objectIds = openHours
-        }
-    }
+    const stages = [];
 
-    const filter = {};
     if (name) {
-        filter.name = {$regex: `${name}`, $options: "i"}
+        stages.push({
+            $match: {
+                name: { $regex: name, $options: 'i' }
+            }
+        })
     }
 
-    if (objectIds.length > 1) {
-        filter._id = {$in: objectIds.map(_id => ObjectId(_id))}
+    if (day || timeInMinutes > 0) {
+        let expr = [{$eq: ['$restaurantId', '$$strId']}]
+        if (day) {
+            expr.push({$eq: ['$day', day]})
+        }
+        if (time) {
+            expr.push({$lte: ['$start', timeInMinutes]})
+            expr.push({$gte: ['$end', timeInMinutes]})
+        }
+        stages.concat([
+            {
+                $lookup: {
+                    from: 'restauranthours',
+                    let: { strId: { $toString: '$_id' } },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: expr
+                                }
+                            }
+                        }
+                    ],
+                    as: 'restaurantHours',
+                },
+            }, {
+                $match: {
+                    'restaurantHours.0': {$exists: true}
+                }
+            }
+        ])
     }
 
-    Restaurant.find(filter).then(restaurants => {
-        res.json(restaurants);
-    })
-    .catch(err => {
-        res.status(404).send(err.errors);
+    Restaurant.aggregate(stages).then( restaurant => {
+        // openHours = restaurantHour.map((r) => r.restaurantId);
+        res.json(restaurant);
+        return;
     });
+
+    // if (day) {
+    //     stages.concat([
+    //         {
+    //             $lookup: {
+    //                 from: 'restauranthours',
+    //                 let: {strId: {$toString: '$_id'}},
+    //                 pipeline: [
+    //                     {
+    //                         $match: {
+    //                             $expr: {
+    //                                 $and: [
+    //                                     {$eq: ['$restaurantId', '$$strId']},
+    //                                     {$eq: ['$day', day]},
+    //                                 ]
+    //                             }
+    //                         }
+    //                     }
+    //                 ],
+    //                 as: 'restaurantHours',
+    //             },
+    //         }, {
+    //             $match: {
+    //                 'restaurantHours.0': {$exists: true}
+    //             }
+    //         }
+    //     ]);
+    // }
+
+
+    // if (day && timeInMinutes) {
+    //     objectIds = arrayUnion(openDays, openHours);
+    // } else {
+    //     if (day) {
+    //         objectIds = openDays
+    //     } else {
+    //         objectIds = openHours
+    //     }
+    // }
+    //
+    // const filter = {};
+    // if (name) {
+    //     filter.name = {$regex: `${name}`, $options: "i"}
+    // }
+    //
+    // if (objectIds.length > 1) {
+    //     filter._id = {$in: objectIds.map(_id => ObjectId(_id))}
+    // }
+    //
+    // Restaurant.find(filter).then(restaurants => {
+    //     res.json(restaurants);
+    // })
+    // .catch(err => {
+    //     res.status(404).send(err.errors);
+    // });
 });
 
 
