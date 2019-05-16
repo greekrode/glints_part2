@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/greekrode/glints_part2#readme",
   "dependencies": {
+    "array-union": "^2.1.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "bootstrap": "^4.3.1",

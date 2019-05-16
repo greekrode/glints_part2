@@ -5,16 +5,18 @@ import { getCollectionData, deleteFromCollection } from "../../actions/collectio
 import io from "socket.io-client";
 
 class CollectionData extends Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            isLoading: false
+        }
+    }
     componentDidMount() {
-        this.props.getCollectionData(this.props.match.params.id);
-        const socket = io.connect('http://localhost:5000', {
-            path: '/'
-        });
-        socket.on('collectionUpdate', (data) => {
-            console.log(data);
-            if (data._id === this.props.match.params.id) {
-                this.props.getCollectionData(this.props.match.params.id);
-            }
+        this.setState({isLoading: true});
+        const socket = io.connect('http://localhost:5000');
+        this.props.getCollectionData(this.props.match.params.id, () => this.setState({isLoading: false}));
+        socket.on('collectionUpdate', () => {
+            this.props.getCollectionData(this.props.match.params.id);
         })
     }
 
@@ -24,6 +26,20 @@ class CollectionData extends Component{
 
     render() {
         const { collection } = this.props.collection;
+        if (this.state.isLoading) {
+            return (
+                <div style={{ height: "75vh"}} className="container valign-wrapper">
+                    <div className="row">
+                        <div className="col s12">
+                            <div className="lds-ripple">
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
 
         return (
             <div className="container">

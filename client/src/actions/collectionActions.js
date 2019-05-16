@@ -40,10 +40,11 @@ export const addToCollection = collection => dispatch => {
         })
 };
 
-export const getCollections = () => dispatch => {
+export const getCollections = (onSuccess) => dispatch => {
     axios
         .get("/api/collections")
         .then(res => {
+            onSuccess();
             dispatch(setCollectionData(res.data))
         })
         .catch(err => {
@@ -54,10 +55,11 @@ export const getCollections = () => dispatch => {
         })
 };
 
-export const getCollaborativeCollections = () => dispatch => {
+export const getCollaborativeCollections = (onSuccess) => dispatch => {
     axios
         .get("/api/collections/users")
         .then(res => {
+            onSuccess();
             dispatch({
                 type: FETCH_COLLABORATIVE_COLLECTION_SUCCESS,
                 payload: res.data
@@ -140,10 +142,11 @@ export const addCollection = collection => dispatch => {
         })
 };
 
-export const getCollectionData = id => dispatch => {
+export const getCollectionData = (id, onSuccess) => dispatch => {
       axios
           .get("/api/collections/" + id)
           .then(res => {
+              onSuccess();
               dispatch({
                   type: FETCH_COLLECTION_DATA_SUCCESS,
                   payload: res.data

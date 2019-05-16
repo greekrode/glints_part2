@@ -8,9 +8,7 @@ const restaurants = require('./routes/api/restaurants');
 const collections = require('./routes/api/collections');
 const cors = require('cors');
 const http = require("http").createServer(app);
-const io = require("socket.io")(http, {
-  path: '/'
-});
+const io = require("socket.io")(http);
 
 app.locals.socket = io;
 
@@ -56,10 +54,20 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Routes
 app.use("/api/users", users);
 app.use("/api/restaurants", passport.authenticate('jwt', {session: false}), restaurants);
 app.use("/api/collections", passport.authenticate('jwt', {session: false}), collections);
+
+io.on('connection', function (socket) {
+  console.log('connection successful');
+});
 
 const port = process.env.PORT || 5000;
 

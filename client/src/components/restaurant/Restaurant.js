@@ -4,8 +4,18 @@ import { getRestaurants }  from "../../actions/restaurantActions";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { addToCollection, getCollections, getCollaborativeCollections, addCollection } from "../../actions/collectionActions";
-import { Modal, Button, Icon, Row, Col, TextInput, TimePicker } from 'react-materialize';
+import { Modal, Button, Icon, Row, Col, TextInput, TimePicker, Select as Select2 } from 'react-materialize';
 import Select from "react-select";
+
+const days = [
+    { value: 'mon', label: "Monday"},
+    { value: 'tue', label: "Tuesday"},
+    { value: 'wed', label: "Wednesday"},
+    { value: 'thu', label: "Thursday"},
+    { value: 'fri', label: "Friday"},
+    { value: 'sat', label: "Saturday"},
+    { value: 'sun', label: "Sunday"},
+];
 
 class Restaurant extends Component {
     constructor(props) {
@@ -14,6 +24,9 @@ class Restaurant extends Component {
             restaurantId: '',
             collectionId: '',
             collectionName: '',
+            time: '',
+            restaurantName: '',
+            day: '',
             addNewCollection: false,
             isLoading: false
         }
@@ -21,8 +34,8 @@ class Restaurant extends Component {
     componentDidMount() {
         this.setState({isLoading: true});
         this.props.getRestaurants(() => this.setState({isLoading: false}));
-        this.props.getCollections();
-        this.props.getCollaborativeCollections();
+        this.props.getCollections(() => this.setState({isLoading: false}));
+        this.props.getCollaborativeCollections(() => this.setState({isLoading: false}));
     }
 
     handleChange = e => {
@@ -37,8 +50,16 @@ class Restaurant extends Component {
         this.setState({collectionName: e.target.value})
     };
 
+    handleChangeFilter = e => {
+        this.setState({restaurantName: e.target.value});
+    };
+
+    handleChangeDay = e => {
+        this.setState({day: e.target.value});
+    };
+
     handleSelectTime = e => {
-        console.log(e.target.value);
+        this.setState({time: e.target.value});
     };
 
     onAddNewCollectionSubmit = e => {
@@ -90,9 +111,22 @@ class Restaurant extends Component {
                 <div className="col s12">
                 <h3 className="center-align">Restaurant Data</h3>
                     <Row>
-                        <TextInput label="Restaurant Name" s={5} />
+                        <TextInput label="Restaurant Name" s={4} onChange={this.handleChangeFilter} icon="chat"/>
+                        <Select2 onChange={this.handleChangeDay} s={3} icon="calendar_today">
+                            <option value="" disabled>
+                                Choose your option
+                            </option>
+                            <option value="mon">Monday</option>
+                            <option value="tue">Tuesday</option>
+                            <option value="wed">Wednesday</option>
+                            <option value="thu">Thursday</option>
+                            <option value="fri">Friday</option>
+                            <option value="sat">Saturday</option>
+                            <option value="sun">Sunday</option>
+                        </Select2>
                         <TimePicker label="Time"
-                                    s={5}
+                                    s={3}
+                                    icon="access_time"
                                     options={{
                                         twelveHour: false,
                                         showClearBtn: true
@@ -104,8 +138,8 @@ class Restaurant extends Component {
                             waves="light"
                             large
                         >
-                            <Icon left>add</Icon>
-                            Add
+                            <Icon left>search</Icon>
+                            Filter
                         </Button>
                     </Row>
                     <table className="striped responsive-table">

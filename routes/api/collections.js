@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const shortid = require('shortid');
-const async = require("async");
 
 const Collection = require("../../models/Collection");
 const CollectionRestaurant = require("../../models/CollectionRestaurant");
@@ -13,6 +12,15 @@ const User = require("../../models/User");
 
 const mailtrapUser = require("../../config/keys").mailtrapUser;
 const mailtrapPass = require("../../config/keys").mailtrapPass;
+
+const mg = require('nodemailer-mailgun-transport');
+
+const auth = {
+    auth: {
+        api_key: '1ecce8acc77c00665371803d283f9131-4a62b8e8-6625a649',
+        domain: 'sandboxa43f0e7c52484d668d6035bc354a4f1f.mailgun.org'
+    }
+};
 
 router.post("/", (req, res) => {
         const newCollection = new Collection({
@@ -82,8 +90,7 @@ router.post("/add/:id", (req, res) => {
                 newCollectionRestaurant
                     .save()
                     .then(collection => {
-                        const socket = req.app.locals.socket.of('/');
-                        socket.emit('colectionUpdate', collection);
+                        req.io.emit('collectionUpdate');
                         res.json(collection)
                     })
                     .catch(() => res.status(400).json({'message': 'Fail to save restaurant to collection!'}))
@@ -106,6 +113,7 @@ router.delete("/:id", (req, res) => {
 
 router.delete("/data/:id", (req, res) => {
     CollectionRestaurant.findByIdAndRemove(req.params.id).then( () => {
+        req.io.emit('collectionUpdate');
         res.json({'message' : 'Collection data deleted!'});
     })
         .catch(err => {
@@ -139,22 +147,39 @@ router.post("/invite/:id", (req, res) => {
             .then(() => {
                 const invitationLink = 'http://localhost:3000/invite/'+ req.user._id + '-' + code;
 
-                const transport = nodemailer.createTransport({
-                    host: "smtp.mailtrap.io",
-                    port: 2525,
-                    auth: {
-                        user: mailtrapUser,
-                        pass: mailtrapPass
+                // const transport = nodemailer.createTransport({
+                //     host: "smtp.mailtrap.io",
+                //     port: 2525,
+                //     auth: {
+                //         user: mailtrapUser,
+                //         pass: mailtrapPass
+                //     }
+                // });
+                const nodemailerMailgun = nodemailer.createTransport(mg(auth));
+
+                nodemailerMailgun.sendMail({
+                    from: req.user.email,
+                    to: req. body.email,
+                    subject: 'Join my collection of restaurant!',
+                    html: '<p><b>' + req.user.name + '</b> has invited you to join his collection of restaurant! Your invitation link is: ' +
+                        '<a href="' + invitationLink + '">CLICK HERE</a></p>',
+                }, function (err, info) {
+                    if (err) {
+                        console.log('Error: ' + err);
+                    }
+                    else {
+                        console.log('Response: ' + info);
                     }
                 });
 
-                transport.sendMail({
-                    from: req.user.email,
-                    to: req.body.email,
-                    subject: 'Join my collection of restaurant!',
-                    html: '<p><b>' + req.user.name + '</b> has invited you to join his collection of restaurant! Your invitation link is: ' +
-                        '<a href="' + invitationLink + '">CLICK HERE</a></p>'
-                });
+
+                // transport.sendMail({
+                //     from: req.user.email,
+                //     to: req.body.email,
+                //     subject: 'Join my collection of restaurant!',
+                //     html: '<p><b>' + req.user.name + '</b> has invited you to join his collection of restaurant! Your invitation link is: ' +
+                //         '<a href="' + invitationLink + '">CLICK HERE</a></p>'
+                // });
                 res.json({'message': 'Invitation sent!'})
             })
             .catch(() => {

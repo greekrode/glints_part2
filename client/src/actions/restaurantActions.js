@@ -16,7 +16,7 @@ export const getRestaurants = (onSuccess) => dispatch => {
         .catch(err =>
             dispatch({
                 type: FETCH_RESTAURANTS_FAIL,
-                payload: err.response.data
+                payload: err
         })
     );
 };

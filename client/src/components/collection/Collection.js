@@ -11,13 +11,15 @@ class Collection extends Component {
         this.state = {
             collectionId: '',
             collectionName: '',
-            emailAddress: ''
+            emailAddress: '',
+            isLoading: false
         }
     }
 
     componentDidMount() {
-        this.props.getCollections();
-        this.props.getCollaborativeCollections();
+        this.setState({isLoading: true});
+        this.props.getCollections(() => this.setState({isLoading: false}));
+        this.props.getCollaborativeCollections(() => this.setState({isLoading: false}));
     }
 
     onDeleteClick = id => {
@@ -56,6 +58,21 @@ class Collection extends Component {
     render() {
         const { collection } = this.props.collection;
         const { collaborativeCollection } = this.props.collection;
+
+        if (this.state.isLoading) {
+            return (
+                <div style={{ height: "75vh"}} className="container valign-wrapper">
+                    <div className="row">
+                        <div className="col s12">
+                            <div className="lds-ripple">
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
 
         return (
             <div className="container">
