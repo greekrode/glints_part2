@@ -12,7 +12,7 @@ This particular app is built using MERN stack with the help of Redux to handle t
 Clone the repository
 ```bash
 ~ git clone https://github.com/greekrode/glints_part2.git
-~ cd glints_part 2
+~ cd glints_part2
 ~ npm install && npm client-install
 ~ npm run dev
 ```
