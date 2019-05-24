@@ -24,7 +24,6 @@ export const getRestaurants = (onSuccess) => dispatch => {
 };
 
 export const filterRestaurants = (filterData, onSuccess) => dispatch => {
-    console.log(filterData);
     axios
         .get("api/restaurants",{
             params: filterData
